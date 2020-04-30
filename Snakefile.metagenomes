@@ -1,0 +1,60 @@
+import glob
+import os
+import re
+from snakemake.io import expand, glob_wildcards
+
+import os
+
+
+configfile: "config.metagenomes.yaml"
+
+data_dir=config["data_dir"]
+sample_glob=config["sample_glob"]
+
+
+hmm_search_query=config["hmm_search"]
+#DHIT_THR = config["cdhit"]
+input_glob = os.path.join(data_dir, sample_glob)
+hmm_query= os.path.basename(hmm_search_query)
+
+wildcard_constraints:
+    CDHIT_THR="[0-9]\.?[0-9]?"
+
+#my_globs = glob_wildcards('metagenomes/{sample}.fasta')
+#my_globs = glob_wildcards('metagenomes/china/{sample}/contigs.fasta')
+#my_globs = glob_wildcards('/home/zorrilla/gut/assemblies/{sample}/contigs.fasta.gz' )
+my_globs = glob_wildcards(input_glob)
+hmm_globss = glob_wildcards("final_hmms/combined_{CDHIT_THR}.hmm")
+
+#all_models=expand("hmms/{CDHIT_THR}/{hits}/{cluster_id}.hmm", CDHIT_THR=my_models.CDHIT_THR, hits=my_models.hits, cluster_id=my_models.cluster_id)
+
+all_models=[filepath for filepath in glob.iglob('hmms/*/*/*.hmm')]
+
+
+rule all:
+    input:
+        expand("hmm_search/{hmm_query}/{sample}.tsv", sample = my_globs.sample, hmm_query=hmm_query)
+
+rule prodigal:
+    input:
+        #"metagenomes/{sample}.fasta"
+        #"metagenomes/china/{sample}/contigs.fasta"
+        input_glob
+    output:
+        proteins="prodigal/{sample}.faa",
+        genes="prodigal/{sample}.genes"
+    shell:
+        "echo {input};"
+        "prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
+
+rule hmm_search:
+    input:
+        sample="prodigal/{sample}.faa",
+        hmm=hmm_search_query
+    output:
+        "hmm_search/{hmm_query}/{sample}.tsv"
+    threads: 5
+    log:
+        "logs/hmm_search/{hmm_query}/{sample}.log"
+    shell:
+        "hmmsearch -o {log} --cpu {threads} -E 0.001 --tblout {output} {input.hmm} {input.sample}"

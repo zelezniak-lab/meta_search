@@ -1,0 +1,8 @@
+extract:
+  input_fasta: "uniprot_trembl.fasta"
+  hits_dir: "data"
+cdhit: 0.9
+general:
+  cores: 2
+  memory: 16000
+    
