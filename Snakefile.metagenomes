@@ -10,7 +10,7 @@ configfile: "config.metagenomes.yaml"
 
 data_dir=config["data_dir"]
 sample_glob=config["sample_glob"]
-
+cd_hit_genes=config["cd_hit_genes"]
 
 hmm_search_query=config["hmm_search"]
 #DHIT_THR = config["cdhit"]
@@ -33,7 +33,7 @@ all_models=[filepath for filepath in glob.iglob('hmms/*/*/*.hmm')]
 
 rule all:
     input:
-        expand("hmm_search/{hmm_query}/{sample}.tsv", sample = my_globs.sample, hmm_query=hmm_query)
+        expand("hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.tsv", sample = my_globs.sample, hmm_query=hmm_query, cd_hit_genes=cd_hit_genes)
 
 rule prodigal:
     input:
@@ -47,14 +47,26 @@ rule prodigal:
         "echo {input};"
         "prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
 
+rule cdhit:
+    input:
+        "prodigal/{sample}.faa"
+    params:
+        cores=config["general"]["cores"],
+        memory=config["general"]["memory"]
+    output:
+         cl="cdhit/{cd_hit_genes}/{sample}",
+         clstr="cdhit/{cd_hit_genes}/{sample}.clstr"
+    shell:
+         "cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
+
 rule hmm_search:
     input:
-        sample="prodigal/{sample}.faa",
+        sample="cdhit/{cd_hit_genes}/{sample}",
         hmm=hmm_search_query
     output:
-        "hmm_search/{hmm_query}/{sample}.tsv"
+        "hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.tsv"
     threads: 5
     log:
-        "logs/hmm_search/{hmm_query}/{sample}.log"
+        "logs/hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.log"
     shell:
         "hmmsearch -o {log} --cpu {threads} -E 0.001 --tblout {output} {input.hmm} {input.sample}"

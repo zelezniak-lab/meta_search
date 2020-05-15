@@ -1,6 +1,7 @@
 data_dir: "/home/zorrilla/gut/assemblies/"
 sample_glob: "{sample}/contigs.fasta"
 hmm_search: "final_hmms/combined_0.8.hmm"
+cd_hit_genes: 0.95
 general:
   cores: 2
   memory: 16000
