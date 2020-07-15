@@ -33,7 +33,7 @@ all_models=[filepath for filepath in glob.iglob('hmms/*/*/*.hmm')]
 
 rule all:
     input:
-        expand("hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.tsv", sample = my_globs.sample, hmm_query=hmm_query, cd_hit_genes=cd_hit_genes)
+        expand("hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.tsv", sample = my_globs.sample, hmm_query=hmm_query, cd_hit_genes=cd_hit_genes)cs
 
 rule prodigal:
     input:
