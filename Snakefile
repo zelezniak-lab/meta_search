@@ -98,7 +98,7 @@ rule hmm_build:
 # an aggregation over all produced clusters
 rule combine:
     input:
-        ["hmms/{{CDHIT_THR}}{hit}.hmm".format(hit=hit) for hit in HITS]
+        ["hmms/{{CDHIT_THR}}-{hit}.hmm".format(hit=hit) for hit in HITS]
     output:
        "final_hmms/combined_{CDHIT_THR}.hmm"
     shell:
