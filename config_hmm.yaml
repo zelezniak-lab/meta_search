@@ -1,7 +1,9 @@
 extract:
   input_fasta: "uniprot_trembl.fasta"
   hits_dir: "data"
-  cdhit: 0.95
+cdhit:
+  thr: 0.95
+  cluster_size: 2
 general:
   cores: 2
   memory: 16000
