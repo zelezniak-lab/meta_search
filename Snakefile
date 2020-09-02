@@ -3,7 +3,7 @@ import os
 import re
 
 configfile: "config_hmm.yaml"
-CDHIT_THR = config["cdhit"]
+CDHIT_THR = config["extract"]["cdhit"]
 data_dir = config["extract"]["hits_dir"]
 
 os.makedirs("logs", exist_ok=True)
