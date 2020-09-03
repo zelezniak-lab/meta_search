@@ -5,6 +5,7 @@ from snakemake.io import expand, glob_wildcards
 
 import os
 
+os.makedirs("logs", exist_ok=True)
 
 configfile: "config.metagenomes.yaml"
 
