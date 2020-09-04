@@ -66,8 +66,10 @@ rule hmm_search:
         hmm=hmm_search_query
     output:
         "hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.tsv"
-    threads: 5
+    params:
+        cores=config["general"]["cores"],
+        memory=config["general"]["memory"]
     log:
         "logs/hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.log"
     shell:
-        "hmmsearch -o {log} --cpu {threads} -E 0.001 --tblout {output} {input.hmm} {input.sample}"
+        "hmmsearch -o {log} --cpu {params.cores} -E 0.001 --tblout {output} {input.hmm} {input.sample}"
