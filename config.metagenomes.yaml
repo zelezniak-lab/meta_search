@@ -1,7 +1,7 @@
-data_dir: "/home/zorrilla/gut/assemblies/"
-sample_glob: "{sample}/contigs.fasta"
-hmm_search: "final_hmms/combined_0.8.hmm"
+data_dir: "/home/zrimec/projects/plastics/results/2020_9_9/tara_assemblies/"
+sample_glob: "{sample}.fasta"
+hmm_search: "/home/zrimec/projects/plastics/results/2020_9_9/hmm_build/final_hmms/combined_0.95_5.hmm"
 cd_hit_genes: 0.95
 general:
-  cores: 2
+  cores: 10
   memory: 16000

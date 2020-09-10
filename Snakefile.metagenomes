@@ -3,73 +3,68 @@ import os
 import re
 from snakemake.io import expand, glob_wildcards
 
-import os
-
 os.makedirs("logs", exist_ok=True)
 
 configfile: "config.metagenomes.yaml"
 
 data_dir=config["data_dir"]
 sample_glob=config["sample_glob"]
-cd_hit_genes=config["cd_hit_genes"]
-
-hmm_search_query=config["hmm_search"]
-#DHIT_THR = config["cdhit"]
 input_glob = os.path.join(data_dir, sample_glob)
+
+cd_hit_genes=config["cd_hit_genes"]
+hmm_search_query=config["hmm_search"]
 hmm_query= os.path.basename(hmm_search_query)
+
+SAMPLES = [x.split('.')[0] for x in os.listdir(data_dir)] # NOTE: seems to work in both present cases but might need to be adapted for other datasets
 
 wildcard_constraints:
     CDHIT_THR="[0-9]\.?[0-9]?"
 
-#my_globs = glob_wildcards('metagenomes/{sample}.fasta')
-#my_globs = glob_wildcards('metagenomes/china/{sample}/contigs.fasta')
-#my_globs = glob_wildcards('/home/zorrilla/gut/assemblies/{sample}/contigs.fasta.gz' )
-my_globs = glob_wildcards(input_glob)
-hmm_globss = glob_wildcards("final_hmms/combined_{CDHIT_THR}.hmm")
-
-#all_models=expand("hmms/{CDHIT_THR}/{hits}/{cluster_id}.hmm", CDHIT_THR=my_models.CDHIT_THR, hits=my_models.hits, cluster_id=my_models.cluster_id)
-
-all_models=[filepath for filepath in glob.iglob('hmms/*/*/*.hmm')]
-
-
 rule all:
     input:
-        expand("hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.tsv", sample = my_globs.sample, hmm_query=hmm_query, cd_hit_genes=cd_hit_genes)cs
+        expand("hmm_search/{hmm_query}/{cd_hit_genes}/combined.tsv", hmm_query=hmm_query, cd_hit_genes=cd_hit_genes)
 
-rule prodigal:
+#rule prodigal:
+#    input:
+#        input_glob
+#    output:
+#        proteins="prodigal/{sample}.faa",
+#        genes="prodigal/{sample}.genes"
+#    shell:
+#        "echo {input};"
+#        "prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
+
+rule combine: 
     input:
-        #"metagenomes/{sample}.fasta"
-        #"metagenomes/china/{sample}/contigs.fasta"
-        input_glob
+        #rules.prodigal.output.proteins # Filips suggestion to chain rule outputs to inputs
+        expand("prodigal/{sample}.faa", sample=SAMPLES) # solution to error: wildcards in input files cannot be determined from output files
     output:
-        proteins="prodigal/{sample}.faa",
-        genes="prodigal/{sample}.genes"
+        "prodigal/combined.faa"
     shell:
-        "echo {input};"
-        "prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
+        "cat {input} > {output}"
 
 rule cdhit:
     input:
-        "prodigal/{sample}.faa"
+        "prodigal/combined.faa"
     params:
         cores=config["general"]["cores"],
         memory=config["general"]["memory"]
     output:
-         cl="cdhit/{cd_hit_genes}/{sample}",
-         clstr="cdhit/{cd_hit_genes}/{sample}.clstr"
+         cl="cdhit/{cd_hit_genes}/combined",
+         clstr="cdhit/{cd_hit_genes}/combined.clstr"
     shell:
          "cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
 
 rule hmm_search:
     input:
-        sample="cdhit/{cd_hit_genes}/{sample}",
+        sample="cdhit/{cd_hit_genes}/combined",
         hmm=hmm_search_query
     output:
-        "hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.tsv"
+        "hmm_search/{hmm_query}/{cd_hit_genes}/combined.tsv"
     params:
         cores=config["general"]["cores"],
         memory=config["general"]["memory"]
     log:
-        "logs/hmm_search/{hmm_query}/{cd_hit_genes}/{sample}.log"
+        "logs/hmm_search/{hmm_query}/{cd_hit_genes}/combined.log"
     shell:
-        "hmmsearch -o {log} --cpu {params.cores} -E 0.001 --tblout {output} {input.hmm} {input.sample}"
+        "hmmsearch -o {log} --cpu {params.cores} -E 1e-10 --tblout {output} {input.hmm} {input.sample}"
