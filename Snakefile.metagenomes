@@ -24,15 +24,15 @@ rule all:
     input:
         expand("hmm_search/{hmm_query}/{cd_hit_genes}/combined.tsv", hmm_query=hmm_query, cd_hit_genes=cd_hit_genes)
 
-#rule prodigal:
-#    input:
-#        input_glob
-#    output:
-#        proteins="prodigal/{sample}.faa",
-#        genes="prodigal/{sample}.genes"
-#    shell:
-#        "echo {input};"
-#        "prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
+rule prodigal:
+    input:
+        input_glob
+    output:
+        proteins="prodigal/{sample}.faa",
+        genes="prodigal/{sample}.genes"
+    shell:
+        "echo {input};"
+        "prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
 
 rule combine: 
     input:
