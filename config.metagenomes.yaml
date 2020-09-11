@@ -2,6 +2,7 @@ data_dir: "/home/zrimec/projects/plastics/results/2020_9_9/tara_assemblies/"
 sample_glob: "{sample}.fasta"
 hmm_search: "/home/zrimec/projects/plastics/results/2020_9_9/hmm_build/final_hmms/combined_0.95_5.hmm"
 cd_hit_genes: 0.95
+singularity: 'singularity exec /cephyr/users/zrimec/Vera/projects/environments/metabagpipes.simg'
 general:
   cores: 10
   memory: 16000
