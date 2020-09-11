@@ -10,7 +10,7 @@ configfile: "config.metagenomes.yaml"
 data_dir = config["data_dir"]
 sample_glob = config["sample_glob"]
 input_glob = os.path.join(data_dir, sample_glob)
-singularity = "singularity exec /cephyr/users/zrimec/Vera/projects/environments/metabagpipes.simg" #config["singularity"]
+sing = "singularity exec /cephyr/users/zrimec/Vera/projects/environments/metabagpipes.simg" #config["singularity"]
 
 cd_hit_genes = config["cd_hit_genes"]
 hmm_search_query = config["hmm_search"]
@@ -33,7 +33,7 @@ rule prodigal:
         genes="prodigal/{sample}.genes"
     shell:
         "echo {input};"
-        "{singularity} prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
+        "{sing} prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
 
 rule combine: 
     input:
@@ -42,7 +42,7 @@ rule combine:
     output:
         "prodigal/combined.faa"
     shell:
-        "{singularity} cat {input} > {output}"
+        "{sing} cat {input} > {output}"
 
 rule cdhit:
     input:
@@ -54,7 +54,7 @@ rule cdhit:
          cl="cdhit/{cd_hit_genes}/combined",
          clstr="cdhit/{cd_hit_genes}/combined.clstr"
     shell:
-         "{singularity} cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
+         "{sing} cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
 
 rule hmm_search:
     input:
@@ -68,4 +68,4 @@ rule hmm_search:
     log:
         "logs/hmm_search/{hmm_query}/{cd_hit_genes}/combined.log"
     shell:
-        "{singularity} hmmsearch -o {log} --cpu {params.cores} -E 1e-10 --tblout {output} {input.hmm} {input.sample}"
+        "{sing} hmmsearch -o {log} --cpu {params.cores} -E 1e-10 --tblout {output} {input.hmm} {input.sample}"
