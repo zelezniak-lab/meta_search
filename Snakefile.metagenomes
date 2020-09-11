@@ -7,14 +7,14 @@ os.makedirs("logs", exist_ok=True)
 
 configfile: "config.metagenomes.yaml"
 
-data_dir=config["data_dir"]
-sample_glob=config["sample_glob"]
+data_dir = config["data_dir"]
+sample_glob = config["sample_glob"]
 input_glob = os.path.join(data_dir, sample_glob)
 singularity = config["singularity"]
 
-cd_hit_genes=config["cd_hit_genes"]
-hmm_search_query=config["hmm_search"]
-hmm_query= os.path.basename(hmm_search_query)
+cd_hit_genes = config["cd_hit_genes"]
+hmm_search_query = config["hmm_search"]
+hmm_query = os.path.basename(hmm_search_query)
 
 SAMPLES = [x.split('.')[0] for x in os.listdir(data_dir) if len(x.split('.')[0]) > 2] # NOTE: seems to work in both present cases but might need to be adapted for other datasets
 
