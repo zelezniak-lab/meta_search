@@ -32,7 +32,7 @@ rule prodigal:
         genes="prodigal/{sample}.genes"
     shell:
         "echo {input};"
-        "prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
+        "{config[singularity]} prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
 
 rule combine: 
     input:
@@ -41,7 +41,7 @@ rule combine:
     output:
         "prodigal/combined.faa"
     shell:
-        "cat {input} > {output}"
+        "{config[singularity]} cat {input} > {output}"
 
 rule cdhit:
     input:
@@ -53,7 +53,7 @@ rule cdhit:
          cl="cdhit/{cd_hit_genes}/combined",
          clstr="cdhit/{cd_hit_genes}/combined.clstr"
     shell:
-         "cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
+         "{config[singularity]} cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
 
 rule hmm_search:
     input:
@@ -67,4 +67,4 @@ rule hmm_search:
     log:
         "logs/hmm_search/{hmm_query}/{cd_hit_genes}/combined.log"
     shell:
-        "hmmsearch -o {log} --cpu {params.cores} -E 1e-10 --tblout {output} {input.hmm} {input.sample}"
+        "{config[singularity]} hmmsearch -o {log} --cpu {params.cores} -E 1e-10 --tblout {output} {input.hmm} {input.sample}"
