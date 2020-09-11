@@ -10,7 +10,7 @@ configfile: "config.metagenomes.yaml"
 data_dir = config["data_dir"]
 sample_glob = config["sample_glob"]
 input_glob = os.path.join(data_dir, sample_glob)
-sing = "singularity exec /cephyr/users/zrimec/Vera/projects/environments/metabagpipes.simg" #config["singularity"]
+sing = config["singularity"]
 
 cd_hit_genes = config["cd_hit_genes"]
 hmm_search_query = config["hmm_search"]
