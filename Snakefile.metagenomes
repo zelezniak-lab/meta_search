@@ -20,6 +20,8 @@ SAMPLES = [x.split('.')[0] for x in os.listdir(data_dir) if len(x.split('.')[0])
 
 wildcard_constraints:
     CDHIT_THR="[0-9]\.?[0-9]?"
+    
+ruleorder: prodigal > cdhit > combine > hmm_search # solution to rule ambiguity error
 
 rule all:
     input:
