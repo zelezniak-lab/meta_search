@@ -68,7 +68,7 @@ rule hmm_search:
     output:
         "hmm_search/{hmm_query}/{cd_hit_genes}/combined.tsv"
     params:
-        cores=config["general"]["cores"],
+        cores=config["general"]["cores_hmm"],
         memory=config["general"]["memory"]
     log:
         "logs/hmm_search/{hmm_query}/{cd_hit_genes}/combined.log"
