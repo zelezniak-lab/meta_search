@@ -49,29 +49,6 @@ rule cdhit:
     shell:
          "cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
 
-## single job single threaded
-#rule combine: 
-#    input:
-#        #rules.prodigal.output.proteins # Filips suggestion to chain rule outputs to inputs
-#        expand("prodigal/{sample}.faa", sample=SAMPLES) # solution to error: wildcards in input files cannot be determined from output files
-#    output:
-#        "prodigal/combined.faa"
-#    shell:
-#        "{sing} cat {input} > {output}"
-
-## single job multi-threaded on large file
-#rule cdhit:
-#    input:
-#        "prodigal/combined.faa"
-#    params:
-#        cores=config["general"]["cores"],
-#        memory=config["general"]["memory"]
-#    output:
-#         cl="cdhit/{cd_hit_genes}/combined",
-#         clstr="cdhit/{cd_hit_genes}/combined.clstr"
-#    shell:
-#         "{sing} cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
-
 # single job single threaded
 rule combine: 
     input:
