@@ -47,7 +47,7 @@ rule cdhit:
          cl="cdhit/{cd_hit_genes}/{sample}",
          clstr="cdhit/{cd_hit_genes}/{sample}.clstr"
     shell:
-         "cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
+         "{sing} cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
 
 # single job single threaded
 rule combine: 
