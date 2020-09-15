@@ -36,28 +36,50 @@ rule prodigal:
         "echo {input};"
         "{sing} prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
 
-# single job single threaded
-rule combine: 
-    input:
-        #rules.prodigal.output.proteins # Filips suggestion to chain rule outputs to inputs
-        expand("prodigal/{sample}.faa", sample=SAMPLES) # solution to error: wildcards in input files cannot be determined from output files
-    output:
-        "prodigal/combined.faa"
-    shell:
-        "{sing} cat {input} > {output}"
-
-# single job multi-threaded on large file
+# multiple jobs multi-threaded
 rule cdhit:
     input:
-        "prodigal/combined.faa"
+        "prodigal/{sample}.faa"
     params:
         cores=config["general"]["cores"],
         memory=config["general"]["memory"]
     output:
-         cl="cdhit/{cd_hit_genes}/combined",
-         clstr="cdhit/{cd_hit_genes}/combined.clstr"
+         cl="cdhit/{cd_hit_genes}/{sample}",
+         clstr="cdhit/{cd_hit_genes}/{sample}.clstr"
     shell:
-         "{sing} cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
+         "cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
+
+## single job single threaded
+#rule combine: 
+#    input:
+#        #rules.prodigal.output.proteins # Filips suggestion to chain rule outputs to inputs
+#        expand("prodigal/{sample}.faa", sample=SAMPLES) # solution to error: wildcards in input files cannot be determined from output files
+#    output:
+#        "prodigal/combined.faa"
+#    shell:
+#        "{sing} cat {input} > {output}"
+
+## single job multi-threaded on large file
+#rule cdhit:
+#    input:
+#        "prodigal/combined.faa"
+#    params:
+#        cores=config["general"]["cores"],
+#        memory=config["general"]["memory"]
+#    output:
+#         cl="cdhit/{cd_hit_genes}/combined",
+#         clstr="cdhit/{cd_hit_genes}/combined.clstr"
+#    shell:
+#         "{sing} cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
+
+# single job single threaded
+rule combine: 
+    input:
+        expand("cdhit/{cd_hit_genes}/{sample}", sample=SAMPLES) # solution to error: wildcards in input files cannot be determined from output files
+    output:
+        "cdhit/{cd_hit_genes}/combined"
+    shell:
+        "{sing} cat {input} > {output}"
 
 # single job multi-threaded on large file
 rule hmm_search:
