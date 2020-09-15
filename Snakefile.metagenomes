@@ -75,7 +75,7 @@ rule cdhit:
 # single job single threaded
 rule combine: 
     input:
-        expand("cdhit/{cd_hit_genes}/{sample}", sample=SAMPLES) # solution to error: wildcards in input files cannot be determined from output files
+        expand("cdhit/{cd_hit_genes}/{sample}", sample=SAMPLES, cd_hit_genes=cd_hit_genes) # solution to error: wildcards in input files cannot be determined from output files
     output:
         "cdhit/{cd_hit_genes}/combined"
     shell:
