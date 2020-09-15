@@ -25,6 +25,7 @@ rule all:
     input:
         expand("hmm_search/{hmm_query}/{cd_hit_genes}/combined.tsv", hmm_query=hmm_query, cd_hit_genes=cd_hit_genes)
 
+# multiple jobs single threaded
 rule prodigal:
     input:
         input_glob
@@ -35,6 +36,7 @@ rule prodigal:
         "echo {input};"
         "{sing} prodigal -i {input} -o {output.genes} -a {output.proteins} -p meta -q"
 
+# single job single threaded
 rule combine: 
     input:
         #rules.prodigal.output.proteins # Filips suggestion to chain rule outputs to inputs
@@ -44,6 +46,7 @@ rule combine:
     shell:
         "{sing} cat {input} > {output}"
 
+# single job multi-threaded on large file
 rule cdhit:
     input:
         "prodigal/combined.faa"
@@ -56,6 +59,7 @@ rule cdhit:
     shell:
          "{sing} cd-hit -i {input} -o {output.cl} -c {cd_hit_genes} -n 5 -T {params.cores} -M {params.memory} -d 0"
 
+# single job multi-threaded on large file
 rule hmm_search:
     input:
         sample="cdhit/{cd_hit_genes}/combined",
