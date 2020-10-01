@@ -1,0 +1,31 @@
+import glob
+import os
+import re
+from snakemake.io import expand, glob_wildcards
+
+os.makedirs("logs", exist_ok=True)
+
+configfile: "config.metagenomes.yaml"
+
+data_dir = config["data_dir"]
+sample_glob = config["sample_glob"]
+input_glob = os.path.join(data_dir, sample_glob)
+sing = config["singularity"]
+my_globs = glob_wildcards(input_glob)
+
+rule all:
+    input:
+        expand("prodigal/{sample}.faa", sample = my_globs.sample),
+        expand("prodigal/{sample}.genes", sample = my_globs.sample),
+        expand("prodigal/{sample}.fsa", sample = my_globs.sample)
+
+rule prodigal:
+    input:
+        input_glob
+    output:
+        proteins="prodigal/{sample}.faa",
+        genes="prodigal/{sample}.genes",
+        seqs="prodigal/{sample}.fsa"
+    shell:
+        "echo {input};"
+        "{sing} prodigal -i {input} -o {output.genes} -a {output.proteins} -d {output.seqs} -p meta -q"
